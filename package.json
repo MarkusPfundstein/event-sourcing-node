@@ -1,0 +1,24 @@
+{
+  "name": "producer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "micro",
+    "dev": "micro-dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "micro": "^9.1.0",
+    "microrouter": "^3.0.0",
+    "mongoose": "^5.0.6",
+    "ramda": "^0.25.0",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "micro-dev": "^2.2.0"
+  }
+}
