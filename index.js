@@ -1,3 +1,4 @@
+const R = require('ramda');
 const { json, send } = require('micro');
 const { router, post, get } = require('microrouter')
 const { comparePassword } = require('./bcrypt');
@@ -9,11 +10,11 @@ const {
   setReducer,
   setDecider,
   getState,
-} = require('./lib/projection');
+} = require('./lib/viewer/projection');
 const {
   replayAll,
   persist,
-} = require('./lib/command');
+} = require('./lib/commander/command');
 
 // commands
 const {
@@ -31,6 +32,18 @@ const {
   userDecider,
   shoppingCardDecider,
 } = require('./deciders');
+const User = require('./models/user');
+const ShoppingCard = require('./models/shopping-card');
+
+// init our stuff and setup router
+initMongo(config);
+setReducer('userReducer', userReducer, R.always(User));
+setDecider('userReducer', userDecider, R.always(User));
+
+setReducer('shoppingCardReducer', shoppingCardReducer, R.always(ShoppingCard));
+setDecider('shoppingCardReducer', shoppingCardDecider, R.always(ShoppingCard));
+
+replayAll();
 
 // commands
 const newUser = async (req, res) => {
@@ -73,8 +86,8 @@ const createShoppingCard = async (req, res) => {
 const viewUser = async (req, res) => {
   const uuid = req.params.uuid;
   
-  const userState = getState().userReducer;
-  const user = userState[uuid];
+  const User = getState().userReducer;
+  const user = await User.findOne({ uuid });
   if (!user) {
     return send(res, 404);
   }
@@ -85,21 +98,9 @@ const viewUser = async (req, res) => {
   return user;
 };
 
-// init our stuff and setup router
-initMongo(config);
-setReducer('userReducer', userReducer);
-setDecider('userReducer', userDecider);
-
-setReducer('shoppingCardReducer', shoppingCardReducer);
-setDecider('shoppingCardReducer', shoppingCardDecider);
-
-replayAll().then(() => console.log('replay done'));
-
 module.exports = router(
   get('/users/:uuid', viewUser),
   post('/users', newUser),
   post('/users/:uuid/confirm', confirmUser),
   post('/users/:uuid/cards', createShoppingCard),
 );
-  
-

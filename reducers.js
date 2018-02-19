@@ -4,42 +4,41 @@ const {
   EVENT_USER_CONFIRMED,
   EVENT_SHOPPING_CARD_CREATED,
 } = require('./events');
-const initialState = require('./initialState');
 
 // memory store for user domain. for production we would want to abstract this and use reddis or mongo for this.
-const userReducer = (state = initialState.userReducer, action) => {
+const userReducer = async (getState, action) => {
+  const User = getState();
   switch (action.type) {
     case EVENT_NEW_USER:
-      return {
-        ...state,
-        [action.data.uuid]: {
-          ...action.data,
-        },
-      };
-    case EVENT_USER_CONFIRMED: return {
-        ...state,
-        [action.data.uuid]: {
-          ...state[action.data.uuid],
+      return User.findOneAndUpdate(
+        { uuid: action.data.uuid }, 
+        action.data,
+        { upsert: true },
+      );
+    case EVENT_USER_CONFIRMED: 
+      return User.findOneAndUpdate(
+        { uuid: action.data.uuid },
+        {
           confirmed: true,
           confirmedAt: action.data.confirmedAt,
         },
-      };
+      );
     default:
-      return state;
+      return;
   }
 }
 
-const shoppingCardReducer = (state = initialState.shoppingCardReducer, action) => {
+const shoppingCardReducer = async (getState, action) => {
+  const ShoppingCard = getState();
   switch (action.type) {
     case EVENT_SHOPPING_CARD_CREATED:
-      return {
-        ...state,
-        [action.data.uuid]: {
-          ...action.data,
-        },
-      };
+      return ShoppingCard.findOneAndUpdate(
+        { uuid: action.data.uuid },
+        action.data,
+        { upsert: true },
+      );
     default:
-      return state;
+      return;
   }
 }
 

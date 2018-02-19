@@ -4,32 +4,31 @@ const {
   EVENT_USER_CONFIRMED,
   EVENT_SHOPPING_CARD_CREATED,
 } = require('./events');
-const initialState = require('./initialState');
 
-const userDecider = (state = initialState.userReducer, action) => {
+const userDecider = async (getState, action) => {
+  const User = getState();
   switch (action.type) {
     case EVENT_NEW_USER:
-      return R.find(
-        R.propEq('email', action.data.email),
-        R.values(state)
-      ) == null;
+      return await User.count(
+        { email: action.data.email }
+      ) === 0;
     case EVENT_USER_CONFIRMED:
-      return (action.data.uuid in state);
+      return await User.count(
+        { uuid: action.data.uuid, confirmed: false }
+      ) > 0;
     default:
       return false;
   }
 }
 
-const shoppingCardDecider = (state = initialState.shoppingCardReducer, action) => {
+const shoppingCardDecider = async (getState, action) => {
+  const ShoppingCard = getState();
   switch (action.type) {
     case EVENT_SHOPPING_CARD_CREATED:
-      return R.find(
-        R.allPass([
-          R.propEq('name', action.data.name),
-          R.propEq('userId', action.data.userId),
-        ]),
-        R.values(state)
-      ) == null;
+      return await ShoppingCard.count({
+        name: action.data.name,
+        userId: action.data.userId,
+      }) === 0;
     default:
       return false;
   }

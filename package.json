@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^1.0.3",
+    "event-emitter-extra": "^0.1.7",
     "micro": "^9.1.0",
     "microrouter": "^3.0.0",
     "mongoose": "^5.0.6",
